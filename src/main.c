@@ -25,6 +25,7 @@ uint8_t workspace[WORKSPACE_SIZE_BYTES];
 
 void main(void)
 {
+    console_init();
     utvm_rpc_server_t server = utvm_rpc_server_init(
       workspace, WORKSPACE_SIZE_BYTES, WORKSPACE_PAGE_SIZE_BYTES_LOG2, write_serial, NULL);
     TVMLogf("uTVM On-Device Runtime");
