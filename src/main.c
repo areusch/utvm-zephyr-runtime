@@ -10,6 +10,8 @@
 #include <tvm/runtime/micro/micro_rpc_server.h>
 #include <tvm/runtime/crt/logging.h>
 
+#include "crt_config.h"
+
 ssize_t write_serial(void* unused_context, const uint8_t* data, size_t size) {
   return console_write(NULL, data, size);
 }
@@ -18,7 +20,7 @@ void TVMPlatformAbort(int error) {
   for (;;) ;
 }
 
-#define WORKSPACE_SIZE_BYTES (60 * 1024)
+#define WORKSPACE_SIZE_BYTES (120 * 1024)
 #define WORKSPACE_PAGE_SIZE_BYTES_LOG2 8
 
 uint8_t workspace[WORKSPACE_SIZE_BYTES];
