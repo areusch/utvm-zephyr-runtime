@@ -21,7 +21,7 @@ void TVMPlatformAbort(int error) {
   for (;;) ;
 }
 
-u32_t g_utvm_start_time;
+uint32_t g_utvm_start_time;
 
 #define MILLIS_TIL_EXPIRY 200
 #define TIME_TIL_EXPIRY (K_MSEC(MILLIS_TIL_EXPIRY))
@@ -46,34 +46,34 @@ int TVMPlatformTimerStop(double* res_us) {
     return -1;
   }
 
-  u32_t stop_time = k_cycle_get_32();
+  uint32_t stop_time = k_cycle_get_32();
 
   // compute how long the work took
-  u32_t cycles_spent = stop_time - g_utvm_start_time;
+  uint32_t cycles_spent = stop_time - g_utvm_start_time;
   if (stop_time < g_utvm_start_time) {
       // we rolled over *at least* once, so correct the rollover it was *only*
       // once, because we might still use this result
-      cycles_spent = ~((u32_t) 0) - (g_utvm_start_time - stop_time);
+      cycles_spent = ~((uint32_t) 0) - (g_utvm_start_time - stop_time);
   }
 
-  u32_t ns_spent = (u32_t) k_cyc_to_ns_floor64(cycles_spent);
+  uint32_t ns_spent = (uint32_t) k_cyc_to_ns_floor64(cycles_spent);
   double hw_clock_res_us = ns_spent / 1000.0;
 
   // need to grab time remaining *before* stopping. when stopped, this function
   // always returns 0.
-  s32_t time_remaining_ms = k_timer_remaining_get(&g_utvm_timer);
+  int32_t time_remaining_ms = k_timer_remaining_get(&g_utvm_timer);
   k_timer_stop(&g_utvm_timer);
   // check *after* stopping to prevent extra expiries on the happy path
   if (time_remaining_ms < 0) {
     TVMLogf("negative time remaining");
     return -1;
   }
-  u32_t num_expiries = k_timer_status_get(&g_utvm_timer);
-  u32_t timer_res_ms = ((num_expiries * MILLIS_TIL_EXPIRY) + time_remaining_ms);
+  uint32_t num_expiries = k_timer_status_get(&g_utvm_timer);
+  uint32_t timer_res_ms = ((num_expiries * MILLIS_TIL_EXPIRY) + time_remaining_ms);
   double approx_num_cycles = (double) k_ticks_to_cyc_floor32(1) * (double) k_ms_to_ticks_ceil32(timer_res_ms);
-  // if we approach the limits of the HW clock datatype (u32_t), use the
+  // if we approach the limits of the HW clock datatype (uint32_t), use the
   // coarse-grained timer result instead
-  if (approx_num_cycles > (0.5 * (~((u32_t) 0)))) {
+  if (approx_num_cycles > (0.5 * (~((uint32_t) 0)))) {
     *res_us = timer_res_ms * 1000.0;
   } else {
     *res_us = hw_clock_res_us;
